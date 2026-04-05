@@ -64,7 +64,7 @@ const config = {
 
 const MONGO_URI = config.MONGO_URI;
 
-const MONGO_DB = process.env.MONGO_DB || 'FREE';
+const MONGO_DB = process.env.MONGO_DB || 'DASUN';
 
 let mongoClient, mongoDB;
 let sessionsCol, numbersCol, adminsCol, newsletterCol, configsCol, newsletterReactsCol;
