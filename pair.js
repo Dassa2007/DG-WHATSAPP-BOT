@@ -46,7 +46,7 @@ const config = {
   PREFIX: '.',
   MAX_RETRIES: 3,
   GROUP_INVITE_LINK: 'https://chat.whatsapp.com/If2IrHuqGzTDyMD9HuTMRt?mode=gi_t',
-  RCD_IMAGE_PATH: 'https://files.catbox.moe/z6bb14.jpg',
+  RCD_IMAGE_PATH: 'https://files.catbox.moe/wz2uji.jpg',
   NEWSLETTER_JID: '1201234567890@newsletter',
   OTP_EXPIRY: 300000,
   OWNER_NUMBER: process.env.OWNER_NUMBER || '94783188906',
@@ -54,9 +54,9 @@ const config = {
   BOT_NAME: 'DG WHATSAPP BOT',
   BOT_VERSION: '1.0.0V',
   OWNER_NAME: 'DASUN GIMHANA',
-  IMAGE_PATH: 'https://files.catbox.moe/iixpfq.jpg',
-  BOT_FOOTER: '> *FREE HOSTING BOT*',
-  BUTTON_IMAGES: { ALIVE: 'https://files.catbox.moe/z6bb14.jpg' }
+  IMAGE_PATH: 'https://files.catbox.moe/wz2uji.jpg',
+  BOT_FOOTER: '> *DG WHATSAPP BOT*',
+  BUTTON_IMAGES: { ALIVE: 'https://files.catbox.moe/wz2uji.jpg' }
 
 };
 
@@ -683,7 +683,7 @@ function setupCommandHandlers(socket, number) {
             };
 
             // 1. Send video note first
-            const vnoteUrl = 'https://files.catbox.moe/qrfo9h.mp4';
+            const vnoteUrl = 'https://files.catbox.moe/dazxqu.mp4';
             await socket.sendMessage(sender, {
               video: { url: vnoteUrl },
               ptv: true
