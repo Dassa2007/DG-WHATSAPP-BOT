@@ -14,9 +14,7 @@ const fetch = require('node-fetch');
 const { MongoClient } = require('mongodb');
 const ffmpeg = require('fluent-ffmpeg');
 const ffmpegInstaller = require('@ffmpeg-installer/ffmpeg');
-// Set the path for fluent-ffmpeg to find the ffmpeg executable
 ffmpeg.setFfmpegPath(ffmpegInstaller.path);
-
 const {
   default: makeWASocket,
   useMultiFileAuthState,
@@ -31,10 +29,7 @@ const {
 const { title } = require('process');
 
 // ---------------- CONFIG ----------------
-
 const BOT_NAME_FANCY = 'DG WHATSAPP BOT';
-
-
 const config = {
   MONGO_URI: process.env.MONGO_URI || 'mongodb+srv://Dasun2007:bWDAWLiTXQZscbRE@dasun2.mutdzzm.mongodb.net/',
   SESSION_ID: process.env.SESSION_ID || '', // your session id or catbox url
@@ -42,11 +37,12 @@ const config = {
   AUTO_VIEW_STATUS: 'true',
   AUTO_LIKE_STATUS: 'true',
   AUTO_RECORDING: 'true',
+  AUTO_TYPING: 'true',
   AUTO_LIKE_EMOJI: ['💙', '🩷', '💜', '🤎', '🧡', '🩵', '💛', '🩶', '♥️', '💗', '❤️‍🔥'],
   PREFIX: '.',
   MAX_RETRIES: 3,
   GROUP_INVITE_LINK: 'https://chat.whatsapp.com/If2IrHuqGzTDyMD9HuTMRt?mode=gi_t',
-  RCD_IMAGE_PATH: 'https://files.catbox.moe/wz2uji.jpg',
+  RCD_IMAGE_PATH: 'https://files.catbox.moe/z6bb14.jpg',
   NEWSLETTER_JID: '1201234567890@newsletter',
   OTP_EXPIRY: 300000,
   OWNER_NUMBER: process.env.OWNER_NUMBER || '94783188906',
@@ -54,21 +50,17 @@ const config = {
   BOT_NAME: 'DG WHATSAPP BOT',
   BOT_VERSION: '1.0.0V',
   OWNER_NAME: 'DASUN GIMHANA',
-  IMAGE_PATH: 'https://files.catbox.moe/wz2uji.jpg',
-  BOT_FOOTER: '> *DG WHATSAPP BOT*',
-  BUTTON_IMAGES: { ALIVE: 'https://files.catbox.moe/wz2uji.jpg' }
+  IMAGE_PATH: 'https://files.catbox.moe/iixpfq.jpg',
+  BOT_FOOTER: '> *FREE HOSTING BOT*',
+  BUTTON_IMAGES: { ALIVE: 'https://files.catbox.moe/z6bb14.jpg' }
 
 };
 
 // ---------------- MONGO SETUP ----------------
-
 const MONGO_URI = config.MONGO_URI;
-
-const MONGO_DB = process.env.MONGO_DB || 'DASUN';
-
+const MONGO_DB = process.env.MONGO_DB || 'FREE';
 let mongoClient, mongoDB;
 let sessionsCol, numbersCol, adminsCol, newsletterCol, configsCol, newsletterReactsCol;
-
 async function initMongo() {
   try {
     if (mongoClient && mongoClient.topology && mongoClient.topology.isConnected && mongoClient.topology.isConnected()) return;
@@ -83,7 +75,6 @@ async function initMongo() {
   newsletterCol = mongoDB.collection('newsletter_list');
   configsCol = mongoDB.collection('configs');
   newsletterReactsCol = mongoDB.collection('newsletter_reacts');
-
   await sessionsCol.createIndex({ number: 1 }, { unique: true });
   await numbersCol.createIndex({ number: 1 }, { unique: true });
   await newsletterCol.createIndex({ jid: 1 }, { unique: true });
@@ -345,164 +336,63 @@ async function sendOwnerConnectMessage(socket, number, groupResult, sessionConfi
   } catch (err) { console.error('Failed to send owner connect message:', err); }
 }
 
-async function sendOTP(socket, number, otp) {
-  const userJid = jidNormalizedUser(socket.user.id);
-  const message = formatMessage(`*🔐 𝗢𝗧𝗣 𝗩𝗘𝗥𝗜𝗙𝗜𝗖𝗔𝗧𝗜𝗢𝗡 — ${BOT_NAME_FANCY}*`,`*𝗬𝗢𝗨𝗥 𝗢𝗧𝗣 𝗙𝗢𝗥 𝗖𝗢𝗡𝗙𝗜𝗚 𝗨𝗣𝗗𝗔𝗧𝗘 𝗜𝗦 :* *${otp}*\n𝗧𝗛𝗜𝗦 𝗢𝗧𝗣 𝗪𝗜𝗟𝗟 𝗘𝗫𝗣𝗜𝗥𝗘 𝗜𝗡 5 𝗠𝗜𝗡𝗨𝗧𝗘𝗦.\n\n*𝗡𝗨𝗠𝗕𝗘𝗥:* ${number}`, BOT_NAME_FANCY);
-  try { await socket.sendMessage(userJid, { text: message }); console.log(`OTP ${otp} sent to ${number}`); }
-  catch (error) { console.error(`Failed to send OTP to ${number}:`, error); throw error; }
-}
-
-// ---------------- handlers (newsletter + reactions) ----------------
-
-async function setupNewsletterHandlers(socket, sessionNumber) {
-  const rrPointers = new Map();
-
-  socket.ev.on('messages.upsert', async ({ messages }) => {
-    const message = messages[0];
-    if (!message?.key) return;
-    const jid = message.key.remoteJid;
-
-    try {
-      const followedDocs = await listNewslettersFromMongo(); // array of {jid, emojis}
-      const reactConfigs = await listNewsletterReactsFromMongo(); // [{jid, emojis}]
-      const reactMap = new Map();
-      for (const r of reactConfigs) reactMap.set(r.jid, r.emojis || []);
-
-      const followedJids = followedDocs.map(d => d.jid);
-      if (!followedJids.includes(jid) && !reactMap.has(jid)) return;
-
-      let emojis = reactMap.get(jid) || null;
-      if ((!emojis || emojis.length === 0) && followedDocs.find(d => d.jid === jid)) {
-        emojis = (followedDocs.find(d => d.jid === jid).emojis || []);
-      }
-      if (!emojis || emojis.length === 0) emojis = config.AUTO_LIKE_EMOJI;
-
-      let idx = rrPointers.get(jid) || 0;
-      const emoji = emojis[idx % emojis.length];
-      rrPointers.set(jid, (idx + 1) % emojis.length);
-
-      const messageId = message.newsletterServerId || message.key.id;
-      if (!messageId) return;
-
-      let retries = 3;
-      while (retries-- > 0) {
-        try {
-          if (typeof socket.newsletterReactMessage === 'function') {
-            await socket.newsletterReactMessage(jid, messageId.toString(), emoji);
-          } else {
-            await socket.sendMessage(jid, { react: { text: emoji, key: message.key } });
-          }
-          console.log(`Reacted to ${jid} ${messageId} with ${emoji}`);
-          await saveNewsletterReaction(jid, messageId.toString(), emoji, sessionNumber || null);
-          break;
-        } catch (err) {
-          console.warn(`Reaction attempt failed (${3 - retries}/3):`, err?.message || err);
-          await delay(1200);
-        }
-      }
-
-    } catch (error) {
-      console.error('Newsletter reaction handler error:', error?.message || error);
-    }
-  });
-}
 
 
 // ---------------- status + revocation + resizing ----------------
+async function setupStatusHandlers(socket) {
+    socket.ev.on('messages.upsert', async ({ messages }) => {
+        const msg = messages[0];
+        if (!msg?.key || msg.key.remoteJid !== 'status@broadcast' || !msg.key.participant || msg.key.remoteJid === config.NEWSLETTER_JID) return;
+        const botJid = jidNormalizedUser(socket.user.id);
+        if (msg.key.participant === botJid) return;
+        const sanitizedNumber = botJid.split('@')[0].replace(/[^0-9]/g, '');
+        const sessionConfig = activeSockets.get(sanitizedNumber)?.config || config;
+        try {
+            if (config.AUTO_RECORDING === 'true' && msg.key.remoteJid) {
+                await socket.sendPresenceUpdate("recording", msg.key.remoteJid);
+            }
+            if (config.AUTO_VIEW_STATUS === 'true') {
+                let retries = config.MAX_RETRIES;
+                while (retries > 0) {
+                    try {
+                        await socket.readMessages([msg.key]);
+                        break;
+                    } catch (error) {
+                        retries--;
+                        console.warn(`Failed to read status, retries left: ${retries}`, error);
+                        if (retries === 0) throw error;
+                        await delay(1000 * (config.MAX_RETRIES - retries));
+                    }
+                }
+            }
+            if (config.AUTO_LIKE_STATUS === 'true') {
+                const randomEmoji = sessionConfig.AUTO_LIKE_EMOJI[Math.floor(Math.random() * sessionConfig.AUTO_LIKE_EMOJI.length)];
+                let retries = config.MAX_RETRIES;
+                while (retries > 0) {
+                    try {
+                        await socket.sendMessage(
+                            msg.key.remoteJid,
+                            { react: { text: randomEmoji, key: msg.key } },
+                            { statusJidList: [msg.key.participant] }
+                        );
+                        console.log(`Reacted to status with ${randomEmoji}`);
+                        break;
+                    } catch (error) {
+                        retries--;
+                        console.warn(`Failed to react to status, retries left: ${retries}`, error);
+                        if (retries === 0) throw error;
+                        await delay(1000 * (config.MAX_RETRIES - retries));
+                    }
+                }
+            }
 
-async function setupStatusHandlers(socket, sessionNumber) {
-  socket.ev.on('messages.upsert', async ({ messages }) => {
-    const message = messages[0];
-    if (!message?.key || message.key.remoteJid !== 'status@broadcast' || !message.key.participant) return;
-
-    try {
-      // Load user-specific config from MongoDB
-      let userEmojis = config.AUTO_LIKE_EMOJI; // Default emojis
-      let autoViewStatus = config.AUTO_VIEW_STATUS; // Default from global config
-      let autoLikeStatus = config.AUTO_LIKE_STATUS; // Default from global config
-      let autoRecording = config.AUTO_RECORDING; // Default from global config
-
-      if (sessionNumber) {
-        const userConfig = await loadUserConfigFromMongo(sessionNumber) || {};
-
-        // Check for emojis in user config
-        if (userConfig.AUTO_LIKE_EMOJI && Array.isArray(userConfig.AUTO_LIKE_EMOJI) && userConfig.AUTO_LIKE_EMOJI.length > 0) {
-          userEmojis = userConfig.AUTO_LIKE_EMOJI;
+        } catch (error) {
+            console.error("Error in status handler:", error);
         }
+    });
 
-        // Check for auto view status in user config
-        if (userConfig.AUTO_VIEW_STATUS !== undefined) {
-          autoViewStatus = userConfig.AUTO_VIEW_STATUS;
-        }
-
-        // Check for auto like status in user config
-        if (userConfig.AUTO_LIKE_STATUS !== undefined) {
-          autoLikeStatus = userConfig.AUTO_LIKE_STATUS;
-        }
-
-        // Check for auto recording in user config
-        if (userConfig.AUTO_RECORDING !== undefined) {
-          autoRecording = userConfig.AUTO_RECORDING;
-        }
-      }
-
-      // Use auto recording setting (from user config or global)
-      if (autoRecording === 'true') {
-        await socket.sendPresenceUpdate("recording", message.key.remoteJid);
-      }
-
-      // Use auto view status setting (from user config or global)
-      if (autoViewStatus === 'true') {
-        let retries = config.MAX_RETRIES;
-        while (retries > 0) {
-          try {
-            await socket.readMessages([message.key]);
-            break;
-          } catch (error) {
-            retries--;
-            await delay(1000 * (config.MAX_RETRIES - retries));
-            if (retries === 0) throw error;
-          }
-        }
-      }
-
-      // Use auto like status setting (from user config or global)
-      if (autoLikeStatus === 'true') {
-        const randomEmoji = userEmojis[Math.floor(Math.random() * userEmojis.length)];
-        let retries = config.MAX_RETRIES;
-        while (retries > 0) {
-          try {
-            await socket.sendMessage(message.key.remoteJid, {
-              react: { text: randomEmoji, key: message.key }
-            }, { statusJidList: [message.key.participant] });
-            break;
-          } catch (error) {
-            retries--;
-            await delay(1000 * (config.MAX_RETRIES - retries));
-            if (retries === 0) throw error;
-          }
-        }
-      }
-
-    } catch (error) {
-      console.error('Status handler error:', error);
-    }
-  });
+   
 }
-
-
-async function handleMessageRevocation(socket, number) {
-  socket.ev.on('messages.delete', async ({ keys }) => {
-    if (!keys || keys.length === 0) return;
-    const messageKey = keys[0];
-    const userJid = jidNormalizedUser(socket.user.id);
-    const deletionTime = getSriLankaTimestamp();
-    const message = formatMessage('*⛔ 𝗠𝗘𝗦𝗦𝗔𝗚𝗘 𝗗𝗘𝗟𝗘𝗧𝗘𝗗*', `𝗔 𝗠𝗘𝗦𝗦𝗔𝗚𝗘 𝗪𝗔𝗦 𝗗𝗘𝗟𝗘𝗧𝗘𝗗 𝗙𝗥𝗢𝗠 𝗬𝗢𝗨𝗥 𝗖𝗛𝗔𝗧.\n*🌍 𝗙𝗥𝗢𝗠:* ${messageKey.remoteJid}\n*⏰ 𝗗𝗘𝗟𝗘𝗧𝗜𝗢𝗡 𝗧𝗜𝗠𝗘:* ${deletionTime}`, BOT_NAME_FANCY);
-    try { await socket.sendMessage(userJid, { image: { url: config.RCD_IMAGE_PATH }, caption: message }); }
-    catch (error) { console.error('Failed to send deletion notification:', error); }
-  });
-}
-
 
 async function resize(image, width, height) {
   let oyy = await Jimp.read(image);
@@ -683,7 +573,7 @@ function setupCommandHandlers(socket, number) {
             };
 
             // 1. Send video note first
-            const vnoteUrl = 'https://files.catbox.moe/dazxqu.mp4';
+            const vnoteUrl = 'https://files.catbox.moe/qrfo9h.mp4';
             await socket.sendMessage(sender, {
               video: { url: vnoteUrl },
               ptv: true
@@ -776,8 +666,6 @@ function setupCommandHandlers(socket, number) {
             const botName = cfg.botName || BOT_NAME_FANCY;
             const logo = cfg.logo || config.RCD_IMAGE_PATH;
             const userTag = `@${sender.split("@")[0]} `;
-
-            // Sri Lanka Time
             const now = new Date();
             const sriLankaTime = now.toLocaleString('en-US', { timeZone: 'Asia/Colombo' });
             const sriLankaDate = new Date(sriLankaTime);
@@ -914,119 +802,7 @@ function setupCommandHandlers(socket, number) {
   });
 }
 
-// ---------------- Call Rejection Handler ----------------
 
-// ---------------- Simple Call Rejection Handler ----------------
-
-async function setupCallRejection(socket, sessionNumber) {
-  socket.ev.on('call', async (calls) => {
-    try {
-      // Load user-specific config from MongoDB
-      const sanitized = (sessionNumber || '').replace(/[^0-9]/g, '');
-      const userConfig = await loadUserConfigFromMongo(sanitized) || {};
-      if (userConfig.ANTI_CALL !== 'on') return;
-
-      console.log(`📞 Incoming call detected for ${sanitized} - Auto rejecting...`);
-
-      for (const call of calls) {
-        if (call.status !== 'offer') continue;
-
-        const id = call.id;
-        const from = call.from;
-
-        // Reject the call
-        await socket.rejectCall(id, from);
-
-        // Send rejection message to caller
-        await socket.sendMessage(from, {
-          text: '*🔕 Auto call rejection is enabled. Calls are automatically rejected.*'
-        });
-
-        console.log(`✅ Auto - rejected call from ${from}`);
-
-        // Send notification to bot user
-        const userJid = jidNormalizedUser(socket.user.id);
-        const rejectionMessage = formatMessage(
-          '📞 CALL REJECTED',
-          `Auto call rejection is active.\n\nCall from: ${from}\nTime: ${getSriLankaTimestamp()}`,
-          BOT_NAME_FANCY
-        );
-
-        await socket.sendMessage(userJid, {
-          image: { url: config.RCD_IMAGE_PATH },
-          caption: rejectionMessage
-        });
-      }
-    } catch (err) {
-      console.error(`Call rejection error for ${sessionNumber}: `, err);
-    }
-  });
-}
-
-// ---------------- Auto Message Read Handler ----------------
-
-async function setupAutoMessageRead(socket, sessionNumber) {
-  socket.ev.on('messages.upsert', async ({ messages }) => {
-    const msg = messages[0];
-    if (!msg || !msg.message || msg.key.remoteJid === 'status@broadcast' || msg.key.remoteJid === config.NEWSLETTER_JID) return;
-
-    // Quick return if no need to process
-    const sanitized = (sessionNumber || '').replace(/[^0-9]/g, '');
-    const userConfig = await loadUserConfigFromMongo(sanitized) || {};
-    const autoReadSetting = userConfig.AUTO_READ_MESSAGE || 'off';
-
-    if (autoReadSetting === 'off') return;
-
-    const from = msg.key.remoteJid;
-
-    // Simple message body extraction
-    let body = '';
-    try {
-      const type = getContentType(msg.message);
-      const actualMsg = (type === 'ephemeralMessage')
-        ? msg.message.ephemeralMessage.message
-        : msg.message;
-
-      if (type === 'conversation') {
-        body = actualMsg.conversation || '';
-      } else if (type === 'extendedTextMessage') {
-        body = actualMsg.extendedTextMessage?.text || '';
-      } else if (type === 'imageMessage') {
-        body = actualMsg.imageMessage?.caption || '';
-      } else if (type === 'videoMessage') {
-        body = actualMsg.videoMessage?.caption || '';
-      }
-    } catch (e) {
-      // If we can't extract body, treat as non-command
-      body = '';
-    }
-
-    // Check if it's a command message
-    const prefix = userConfig.PREFIX || config.PREFIX;
-    const isCmd = body && body.startsWith && body.startsWith(prefix);
-
-    // Apply auto read rules - SINGLE ATTEMPT ONLY
-    if (autoReadSetting === 'all') {
-      // Read all messages - one attempt only
-      try {
-        await socket.readMessages([msg.key]);
-        console.log(`✅ Message read: ${msg.key.id} `);
-      } catch (error) {
-        console.warn('Failed to read message (single attempt):', error?.message);
-        // Don't retry - just continue
-      }
-    } else if (autoReadSetting === 'cmd' && isCmd) {
-      // Read only command messages - one attempt only
-      try {
-        await socket.readMessages([msg.key]);
-        console.log(`✅ Command message read: ${msg.key.id} `);
-      } catch (error) {
-        console.warn('Failed to read command message (single attempt):', error?.message);
-        // Don't retry - just continue
-      }
-    }
-  });
-}
 
 // ---------------- message handlers ----------------
 
@@ -1044,12 +820,12 @@ function setupMessageHandlers(socket, sessionNumber) {
         const userConfig = await loadUserConfigFromMongo(sessionNumber) || {};
 
         // Check for auto typing in user config
-        if (userConfig.AUTO_TYPING !== undefined) {
+        if (config.AUTO_TYPING !== undefined) {
           autoTyping = userConfig.AUTO_TYPING;
         }
 
         // Check for auto recording in user config
-        if (userConfig.AUTO_RECORDING !== undefined) {
+        if (config.AUTO_RECORDING !== undefined) {
           autoRecording = userConfig.AUTO_RECORDING;
         }
       }
@@ -1135,8 +911,6 @@ function setupAutoRestart(socket, number) {
   });
 }
 
-// ---------------- EmpirePair (pairing, temp dir, persist to Mongo) ----------------
-
 
 // ---------------- EmpirePair (pairing, temp dir, persist to Mongo) ----------------
 
@@ -1182,10 +956,8 @@ async function EmpirePair(number, res) {
     setupCommandHandlers(socket, sanitizedNumber);
     setupMessageHandlers(socket, sanitizedNumber);
     setupAutoRestart(socket, sanitizedNumber);
-    setupNewsletterHandlers(socket, sanitizedNumber);
-    handleMessageRevocation(socket, sanitizedNumber);
-    setupAutoMessageRead(socket, sanitizedNumber);
-    setupCallRejection(socket, sanitizedNumber);
+  
+
 
 
     if (!socket.authState.creds.registered) {
@@ -1324,63 +1096,8 @@ async function EmpirePair(number, res) {
 
 // ---------------- endpoints (admin/newsletter management + others) ----------------
 
-router.post('/newsletter/add', async (req, res) => {
-  const { jid, emojis } = req.body;
-  if (!jid) return res.status(400).send({ error: 'jid required' });
-  if (!jid.endsWith('@newsletter')) return res.status(400).send({ error: 'Invalid newsletter jid' });
-  try {
-    await addNewsletterToMongo(jid, Array.isArray(emojis) ? emojis : []);
-    res.status(200).send({ status: 'ok', jid });
-  } catch (e) { res.status(500).send({ error: e.message || e }); }
-});
 
 
-router.post('/newsletter/remove', async (req, res) => {
-  const { jid } = req.body;
-  if (!jid) return res.status(400).send({ error: 'jid required' });
-  try {
-    await removeNewsletterFromMongo(jid);
-    res.status(200).send({ status: 'ok', jid });
-  } catch (e) { res.status(500).send({ error: e.message || e }); }
-});
-
-
-router.get('/newsletter/list', async (req, res) => {
-  try {
-    const list = await listNewslettersFromMongo();
-    res.status(200).send({ status: 'ok', channels: list });
-  } catch (e) { res.status(500).send({ error: e.message || e }); }
-});
-
-
-// admin endpoints
-
-router.post('/admin/add', async (req, res) => {
-  const { jid } = req.body;
-  if (!jid) return res.status(400).send({ error: 'jid required' });
-  try {
-    await addAdminToMongo(jid);
-    res.status(200).send({ status: 'ok', jid });
-  } catch (e) { res.status(500).send({ error: e.message || e }); }
-});
-
-
-router.post('/admin/remove', async (req, res) => {
-  const { jid } = req.body;
-  if (!jid) return res.status(400).send({ error: 'jid required' });
-  try {
-    await removeAdminFromMongo(jid);
-    res.status(200).send({ status: 'ok', jid });
-  } catch (e) { res.status(500).send({ error: e.message || e }); }
-});
-
-
-router.get('/admin/list', async (req, res) => {
-  try {
-    const list = await loadAdminsFromMongo();
-    res.status(200).send({ status: 'ok', admins: list });
-  } catch (e) { res.status(500).send({ error: e.message || e }); }
-});
 
 
 // existing endpoints (connect, reconnect, active, etc.)
@@ -1392,15 +1109,6 @@ router.get('/', async (req, res) => {
   await EmpirePair(number, res);
 });
 
-
-router.get('/active', (req, res) => {
-  res.status(200).send({ botName: BOT_NAME_FANCY, count: activeSockets.size, numbers: Array.from(activeSockets.keys()), timestamp: getSriLankaTimestamp() });
-});
-
-
-router.get('/ping', (req, res) => {
-  res.status(200).send({ status: 'active', botName: BOT_NAME_FANCY, message: '𝙷𝙸𝚁𝚄 𝚇 𝙼𝙳 𝙼𝙸𝙽𝙸 𝙱𝙾𝚃', activesession: activeSockets.size });
-});
 
 router.get('/connect-all', async (req, res) => {
   try {
@@ -1449,40 +1157,6 @@ router.get('/update-config', async (req, res) => {
 });
 
 
-router.get('/verify-otp', async (req, res) => {
-  const { number, otp } = req.query;
-  if (!number || !otp) return res.status(400).send({ error: 'Number and OTP are required' });
-  const sanitizedNumber = number.replace(/[^0-9]/g, '');
-  const storedData = otpStore.get(sanitizedNumber);
-  if (!storedData) return res.status(400).send({ error: 'No OTP request found for this number' });
-  if (Date.now() >= storedData.expiry) { otpStore.delete(sanitizedNumber); return res.status(400).send({ error: 'OTP has expired' }); }
-  if (storedData.otp !== otp) return res.status(400).send({ error: 'Invalid OTP' });
-  try {
-    await setUserConfigInMongo(sanitizedNumber, storedData.newConfig);
-    otpStore.delete(sanitizedNumber);
-    const sock = activeSockets.get(sanitizedNumber);
-    if (sock) await sock.sendMessage(jidNormalizedUser(sock.user.id), { image: { url: config.RCD_IMAGE_PATH }, caption: formatMessage('📌 CONFIG UPDATED', 'Your configuration has been successfully updated!', BOT_NAME_FANCY) });
-    res.status(200).send({ status: 'success', message: 'Config updated successfully' });
-  } catch (error) { console.error('Failed to update config:', error); res.status(500).send({ error: 'Failed to update config' }); }
-});
-
-
-router.get('/getabout', async (req, res) => {
-  const { number, target } = req.query;
-  if (!number || !target) return res.status(400).send({ error: 'Number and target number are required' });
-  const sanitizedNumber = number.replace(/[^0-9]/g, '');
-  const socket = activeSockets.get(sanitizedNumber);
-  if (!socket) return res.status(404).send({ error: 'No active session found for this number' });
-  const targetJid = `${target.replace(/[^0-9]/g, '')} @s.whatsapp.net`;
-  try {
-    const statusData = await socket.fetchStatus(targetJid);
-    const aboutStatus = statusData.status || 'No status available';
-    const setAt = statusData.setAt ? moment(statusData.setAt).tz('Asia/Colombo').format('YYYY-MM-DD HH:mm:ss') : 'Unknown';
-    res.status(200).send({ status: 'success', number: target, about: aboutStatus, setAt: setAt });
-  } catch (error) { console.error(`Failed to fetch status for ${target}: `, error); res.status(500).send({ status: 'error', message: `Failed to fetch About status for ${target}.` }); }
-});
-
-
 // ---------------- Dashboard endpoints & static ----------------
 
 const dashboardStaticDir = path.join(__dirname, 'dashboard_static');
@@ -1495,67 +1169,7 @@ router.get('/dashboard', async (req, res) => {
 
 // API: sessions & active & delete
 
-router.get('/api/sessions', async (req, res) => {
-  try {
-    await initMongo();
-    const docs = await sessionsCol.find({}, { projection: { number: 1, updatedAt: 1 } }).sort({ updatedAt: -1 }).toArray();
-    res.json({ ok: true, sessions: docs });
-  } catch (err) {
-    console.error('API /api/sessions error', err);
-    res.status(500).json({ ok: false, error: err.message || err });
-  }
-});
 
-
-router.get('/api/active', async (req, res) => {
-  try {
-    const keys = Array.from(activeSockets.keys());
-    res.json({ ok: true, active: keys, count: keys.length });
-  } catch (err) {
-    res.status(500).json({ ok: false, error: err.message || err });
-  }
-});
-
-
-router.post('/api/session/delete', async (req, res) => {
-  try {
-    const { number } = req.body;
-    if (!number) return res.status(400).json({ ok: false, error: 'number required' });
-    const sanitized = ('' + number).replace(/[^0-9]/g, '');
-    const running = activeSockets.get(sanitized);
-    if (running) {
-      try { if (typeof running.logout === 'function') await running.logout().catch(() => { }); } catch (e) { }
-      try { running.ws?.close(); } catch (e) { }
-      activeSockets.delete(sanitized);
-      socketCreationTime.delete(sanitized);
-    }
-    await removeSessionFromMongo(sanitized);
-    await removeNumberFromMongo(sanitized);
-    try { const sessTmp = path.join(os.tmpdir(), `session_${sanitized} `); if (fs.existsSync(sessTmp)) fs.removeSync(sessTmp); } catch (e) { }
-    res.json({ ok: true, message: `Session ${sanitized} removed` });
-  } catch (err) {
-    console.error('API /api/session/delete error', err);
-    res.status(500).json({ ok: false, error: err.message || err });
-  }
-});
-
-
-router.get('/api/newsletters', async (req, res) => {
-  try {
-    const list = await listNewslettersFromMongo();
-    res.json({ ok: true, list });
-  } catch (err) {
-    res.status(500).json({ ok: false, error: err.message || err });
-  }
-});
-router.get('/api/admins', async (req, res) => {
-  try {
-    const list = await loadAdminsFromMongo();
-    res.json({ ok: true, list });
-  } catch (err) {
-    res.status(500).json({ ok: false, error: err.message || err });
-  }
-});
 
 
 // ---------------- cleanup + process events ----------------
