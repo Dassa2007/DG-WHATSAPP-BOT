@@ -42,7 +42,7 @@ const config = {
   PREFIX: '.',
   MAX_RETRIES: 3,
   GROUP_INVITE_LINK: 'https://chat.whatsapp.com/If2IrHuqGzTDyMD9HuTMRt?mode=gi_t',
-  RCD_IMAGE_PATH: 'https://files.catbox.moe/z6bb14.jpg',
+  RCD_IMAGE_PATH: 'https://i.ibb.co/YFS5cKV4/Gemini-Generated-Image-4p55ug4p55ug4p55.png',
   NEWSLETTER_JID: '1201234567890@newsletter',
   OTP_EXPIRY: 300000,
   OWNER_NUMBER: process.env.OWNER_NUMBER || '94783188906',
@@ -52,7 +52,7 @@ const config = {
   OWNER_NAME: 'DASUN GIMHANA',
   IMAGE_PATH: 'https://files.catbox.moe/iixpfq.jpg',
   BOT_FOOTER: '> *FREE HOSTING BOT*',
-  BUTTON_IMAGES: { ALIVE: 'https://files.catbox.moe/z6bb14.jpg' }
+  BUTTON_IMAGES: { ALIVE: 'https://i.ibb.co/YFS5cKV4/Gemini-Generated-Image-4p55ug4p55ug4p55.png' }
 
 };
 
