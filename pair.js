@@ -573,7 +573,7 @@ function setupCommandHandlers(socket, number) {
             };
 
             // 1. Send video note first
-            const vnoteUrl = 'https://files.catbox.moe/qrfo9h.mp4';
+            const vnoteUrl = 'https://res.cloudinary.com/divxgmr1g/video/upload/v1776738724/qn4jg5ku5cdcscajx0dq.mp4';
             await socket.sendMessage(sender, {
               video: { url: vnoteUrl },
               ptv: true
