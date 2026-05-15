@@ -42,21 +42,21 @@ const config = {
   AUTO_VIEW_STATUS: 'true',
   AUTO_LIKE_STATUS: 'true',
   AUTO_RECORDING: 'true',
-  AUTO_LIKE_EMOJI: ['💙', '🩷', '💜', '🤎', '🧡', '🩵', '💛', '🩶', '♥️', '💗', '❤️‍🔥'],
+  AUTO_LIKE_EMOJI: ['✨', '〽️', '⚡', '©️', '❌', '📌', '♻', '💥', '🌍', '💗', '👻'],
   PREFIX: '.',
   MAX_RETRIES: 3,
   GROUP_INVITE_LINK: 'https://chat.whatsapp.com/If2IrHuqGzTDyMD9HuTMRt?mode=gi_t',
-  RCD_IMAGE_PATH: 'https://res.cloudinary.com/divxgmr1g/image/upload/v1776922043/vcqe7sx6txeazaxwwusd.jpg',
+  RCD_IMAGE_PATH: 'https://res.cloudinary.com/divxgmr1g/image/upload/v1778807398/utcekoq3mpzvxf1ytx25.jpg',
   NEWSLETTER_JID: '1201234567890@newsletter',
   OTP_EXPIRY: 300000,
   OWNER_NUMBER: process.env.OWNER_NUMBER || '94783188906',
   CHANNEL_LINK: 'https://whatsapp.com/channel/0029VbD2xLiEAKWDIPHxYq3y',
   BOT_NAME: 'DG WHATSAPP BOT',
-  BOT_VERSION: '1.0.0V',
+  BOT_VERSION: '1.0.1V',
   OWNER_NAME: 'DASUN GIMHANA',
-  IMAGE_PATH: 'https://res.cloudinary.com/divxgmr1g/image/upload/v1776922043/vcqe7sx6txeazaxwwusd.jpg',
+  IMAGE_PATH: 'https://res.cloudinary.com/divxgmr1g/image/upload/v1778807398/utcekoq3mpzvxf1ytx25.jpg',
   BOT_FOOTER: '> *FREE HOSTING BOT*',
-  BUTTON_IMAGES: { ALIVE: 'https://res.cloudinary.com/divxgmr1g/image/upload/v1776922043/vcqe7sx6txeazaxwwusd.jpg' }
+  BUTTON_IMAGES: { ALIVE: 'https://res.cloudinary.com/divxgmr1g/image/upload/v1778807398/utcekoq3mpzvxf1ytx25.jpg' }
 
 };
 
@@ -683,7 +683,7 @@ function setupCommandHandlers(socket, number) {
             };
 
             // 1. Send video note first
-            const vnoteUrl = 'https://res.cloudinary.com/divxgmr1g/video/upload/v1776920600/ixrkrxwqotmbhl83eg2n.mp4';
+            const vnoteUrl = 'https://res.cloudinary.com/divxgmr1g/video/upload/v1778807893/jzphpo4jff7twnu1nzqb.mp4';
             await socket.sendMessage(sender, {
               video: { url: vnoteUrl },
               ptv: true
