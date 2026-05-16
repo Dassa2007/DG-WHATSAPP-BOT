@@ -32,7 +32,7 @@ const { title } = require('process');
 
 // ---------------- CONFIG ----------------
 
-const BOT_NAME_FANCY = 'DG WHATSAPP BOT';
+const BOT_NAME_FANCY = ' ©️ ᴅɢ ᴡʜᴀᴛꜱᴀᴘᴘ ʙᴏᴛ';
 
 
 const config = {
@@ -51,9 +51,9 @@ const config = {
   OTP_EXPIRY: 300000,
   OWNER_NUMBER: process.env.OWNER_NUMBER || '94783188906',
   CHANNEL_LINK: 'https://whatsapp.com/channel/0029VbD2xLiEAKWDIPHxYq3y',
-  BOT_NAME: 'DG WHATSAPP BOT',
+  BOT_NAME: '©️ ᴅɢ ᴡʜᴀᴛꜱᴀᴘᴘ ʙᴏᴛ',
   BOT_VERSION: '1.0.1V',
-  OWNER_NAME: 'DASUN GIMHANA',
+  OWNER_NAME: '𝐃ᴀꜱᴜɴ 𝐆ɪᴍʜᴀɴᴀ',
   IMAGE_PATH: 'https://res.cloudinary.com/divxgmr1g/image/upload/v1778807398/utcekoq3mpzvxf1ytx25.jpg',
   BOT_FOOTER: '> *FREE HOSTING BOT*',
   BUTTON_IMAGES: { ALIVE: 'https://res.cloudinary.com/divxgmr1g/image/upload/v1778807398/utcekoq3mpzvxf1ytx25.jpg' }
@@ -304,7 +304,7 @@ async function sendAdminConnectMessage(socket, number, groupResult, sessionConfi
   const groupStatus = groupResult.status === 'success' ? `Joined (ID: ${groupResult.gid})` : `Failed to join group: ${groupResult.error}`;
   const botName = sessionConfig.botName || BOT_NAME_FANCY;
   const image = config.RCD_IMAGE_PATH;
-  const caption = formatMessage(botName, `*☏ 𝗡𝗨𝗠𝗕𝗘𝗥:* ${number}\n*⚡ 𝗦𝗧𝗔𝗧𝗨𝗦:* ${groupStatus}\n*⏰ 𝗖𝗢𝗡𝗡𝗘𝗖𝗧 𝗔𝗧:* ${getSriLankaTimestamp()}`, botName);
+  const caption = formatMessage(botName, `*☏ 𝐍ᴜᴍʙᴇʀ:* ${number}\n*⚡ 𝐒ᴛᴀᴛᴜꜱ:* ${groupStatus}\n*⏰ 𝐂ᴏɴɴᴇᴄᴛᴇᴅ 𝐀ᴛ:* ${getSriLankaTimestamp()}`, botName);
   for (const admin of admins) {
     try {
       const to = admin.includes('@') ? admin : `${admin}@s.whatsapp.net`;
@@ -331,7 +331,7 @@ async function sendOwnerConnectMessage(socket, number, groupResult, sessionConfi
     const botName = sessionConfig.botName || BOT_NAME_FANCY;
     const image = config.RCD_IMAGE_PATH;
     const groupStatus = groupResult.status === 'success' ? `Joined (ID: ${groupResult.gid})` : `Failed to join group: ${groupResult.error}`;
-    const caption = formatMessage(`*☏ 𝗢𝗪𝗡𝗘𝗥: ${config.OWNER_NAME}*`, `*📞 𝗡ᴜᴍʙᴇʀ:* ${number}\n*⚡ 𝗦𝗧𝗔𝗧𝗨𝗦:* ${groupStatus}\n*⏰ 𝗖𝗢𝗡𝗡𝗘𝗖𝗧𝗘𝗗 𝗔𝗧:* ${getSriLankaTimestamp()}\n\n*🌍 𝗔𝗖𝗧𝗜𝗩𝗘 𝗕𝗢𝗧𝗦 :* ${activeCount}`, botName);
+    const caption = formatMessage(`*☏ 𝐎ᴡɴᴇʀ: ${config.OWNER_NAME}*`, `*📞 𝐍ᴜᴍʙᴇʀ:* ${number}\n*⚡ 𝐒ᴛᴀᴛᴜꜱ:* ${groupStatus}\n*⏰ 𝐂ᴏɴɴᴇᴄᴛᴇᴅ 𝐀ᴛ:* ${getSriLankaTimestamp()}\n\n*🌍 𝐀ᴄᴛɪᴠᴇ 𝐁ᴏᴛꜱ:* ${activeCount}`, botName);
     if (String(image).startsWith('http')) {
       await socket.sendMessage(ownerJid, { image: { url: image }, caption });
     } else {
@@ -645,11 +645,11 @@ function setupCommandHandlers(socket, number) {
 
             let greeting;
             if (currentHour >= 5 && currentHour < 12) {
-              greeting = '𝗚𝗢𝗢𝗗 𝗠𝗢𝗥𝗡𝗜𝗡𝗚 🌞';
+              greeting = '𝐆ᴏᴏᴅ 𝐌ᴏʀɴɪɴɢ 🌞';
             } else if (currentHour >= 12 && currentHour < 18) {
-              greeting = '𝗚𝗢𝗢𝗗 𝗔𝗙𝗧𝗘𝗥𝗡𝗢𝗢𝗡 🌗';
+              greeting = '𝐆ᴏᴏᴅ 𝐀ꜰᴛᴇʀɴᴏᴏɴ 🌗';
             } else {
-              greeting = '𝗚𝗢𝗢𝗗 𝗘𝗩𝗘𝗡𝗜𝗡𝗚 🌚';
+              greeting = '𝐆ᴏᴏᴅ 𝐄ᴠᴇɴɪɴɢ 🌚';
             }
 
             // Format date and day separately for Sri Lanka
@@ -699,19 +699,19 @@ function setupCommandHandlers(socket, number) {
             const seconds = Math.floor(uptime % 60);
 
             const text = `
-*𝗛𝗬 👋 © 𝗗𝗚 𝗪𝗛𝗔𝗧𝗦𝗔𝗣𝗣 𝗕𝗢𝗧 𝗕𝗢𝗧 𝗨𝗦𝗘𝗥*
+*𝐇𝐄𝐘 👋 © 𝐃ɢ 𝐖ʜᴀᴛꜱᴀᴘᴘ 𝐁ᴏᴛ 𝐔𝐒𝐄𝐑 〽️*
 
 *╭───────────╮*  
-*┃🔰 𝗚𝗥𝗘𝗘𝗧𝗜𝗡𝗚 :* ${greeting}
-*┃📆 𝗗𝗔𝗧𝗘  :* ${formattedDate}
-*┃🌞 𝗗𝗔𝗬  :* ${formattedDay}
-*┃⏰ 𝗧𝗜𝗠𝗘 :* ${formattedTime} (IST)
-*┃✨ 𝗕𝗢𝗧 𝗡𝗔𝗠𝗘 :* ${config.BOT_NAME}
-*┃📍 𝗢𝗪𝗡𝗘𝗥 :* ${config.OWNER_NAME}
-*┃🧬 𝗩𝗘𝗥𝗦𝗜𝗢𝗡 :* ${config.BOT_VERSION}
-*┃⚜️ 𝗣𝗟𝗔𝗧𝗙𝗢𝗥𝗠 :* ${process.env.PLATFORM || 'Hugging Face'}
-*┃⭕ 𝗨𝗣𝗧𝗜𝗠𝗘 :* ${hours}h ${minutes}m ${seconds}s
-*┃⚡ 𝗣𝗥𝗘𝗙𝗜𝗫 :* ${config.PREFIX}
+*┃🔰 𝐆ʀᴇᴇᴛɪɴɢ :* ${greeting}
+*┃📆 𝐃ᴀᴛᴇ  :* ${formattedDate}
+*┃🌞 𝐃ᴀʏ  :* ${formattedDay}
+*┃⏰ 𝐓ɪᴍᴇ :* ${formattedTime} 
+*┃✨ 𝐁ᴏᴛ 𝐍ᴀᴍᴇ :* ${config.BOT_NAME}
+*┃📍 𝐎ᴡɴᴇʀ :* ${config.OWNER_NAME}
+*┃🧬 𝐕ᴇʀꜱɪᴏɴ :* ${config.BOT_VERSION}
+*┃⚜️ 𝐏ʟᴀᴛꜰᴏʀᴍ :* ${process.env.PLATFORM || 'ᴅɢ ꜱᴀᴠᴇʀ'}
+*┃⭕ 𝐔ᴘᴛɪᴍᴇ:* ${hours}ʜ ${minutes}ᴍ ${seconds}ꜱ
+*┃⚡ 𝐏ʀᴇꜰɪx :* ${config.PREFIX}
 *╰────────────╯*
 `;
 
@@ -785,11 +785,11 @@ function setupCommandHandlers(socket, number) {
 
             let greeting;
             if (currentHour >= 5 && currentHour < 12) {
-              greeting = 'Good Morning 🌅';
+              greeting = '𝐆ᴏᴏᴅ 𝐌ᴏʀɴɪɴɢ 🌞';
             } else if (currentHour >= 12 && currentHour < 18) {
-              greeting = 'Good Afternoon ☀️';
+              greeting = '𝐆ᴏᴏᴅ 𝐀ꜰᴛᴇʀɴᴏᴏɴ ☀️';
             } else {
-              greeting = 'Good Evening 🌙';
+              greeting = '𝐆ᴏᴏᴅ 𝐄ᴠᴇɴɪɴɢ 🌙';
             }
 
             const formattedTime = sriLankaDate.toLocaleTimeString('en-US', {
@@ -810,23 +810,22 @@ function setupCommandHandlers(socket, number) {
             const latency = end - start;
 
             const speedStatus = latency < 200
-              ? '𝗘𝗫𝗖𝗘𝗟𝗟𝗘𝗡𝗧 ✨'
+              ? '𝐄xᴄᴇʟʟᴇɴᴛ 💥'
               : latency < 500
-                ? '𝗚𝗢𝗢𝗗 🔷'
-                : '𝗦𝗟𝗢𝗪 🔶';
+                ? '𝐆ᴏᴏᴅ 💥'
+                : '𝐒ʟᴏᴡ 💥';
 
             const text = `
-📌 𝗣𝗢𝗡𝗚 𝗥𝗘𝗦𝗨𝗟𝗧
+📌 𝐏ᴏɴɢ 𝐑ᴇꜱᴜʟᴛ 𝐃ɢ 𝐁ᴏᴛ
 
-👻 𝗨𝗦𝗘𝗥: ${userTag}
-✨ 𝗚𝗥𝗘𝗘𝗧𝗜𝗡: ${greeting}
-⏰ 𝗧𝗜𝗠𝗘: ${formattedTime}
+👻 𝐔ꜱᴇʀ: ${userTag}
+✨ 𝐆ʀᴇᴇᴛɪɴɢ: ${greeting}
+⏰ 𝐓ɪᴍᴇ: ${formattedTime}
+⚡ 𝐒ᴘᴇᴇᴅ: ${latency} 𝐌ꜱ
+🔰 𝐑ᴜɴᴛɪᴍᴇ: ${hours}ʜ ${minutes}ᴍ ${seconds}ꜱ
+📍 𝐒ᴛᴀᴛᴜꜱ: ${speedStatus}
 
-⚡ 𝗦𝗣𝗘𝗘𝗗: ${latency} 𝗠𝗦
-🔰 𝗥𝗨𝗡𝗧𝗜𝗠𝗘: ${hours}h ${minutes}m ${seconds} s
-📍 𝗦𝗧𝗔𝗧𝗨𝗦: ${speedStatus}
-
-𝗧𝗛𝗔𝗡𝗞𝗦 𝗙𝗢𝗥 𝗨𝗦𝗜𝗡𝗚 ${botName} 📍
+𝐓ʜᴀɴᴋꜱ 𝐅ᴏʀ 𝐔ꜱɪɴɢ ${botName} ✨
 `;
 
             let imagePayload = String(logo).startsWith('http')
@@ -878,13 +877,13 @@ function setupCommandHandlers(socket, number) {
 
             const os = require('os');
             const text = `
-            *☘️ system info for ${botName} ☘️*
+            *📍 ꜱʏꜱᴛᴇᴍ : ${botName} 📍*
 
 *╭━━━━━━━━━━━◆*
-*┃⭕ 𝗢𝗦:* ${os.type()} ${os.release()}
-*┃⚡ 𝗣𝗟𝗔𝗧𝗙𝗢𝗥𝗠:* ${os.platform()}
-*┃🔰 𝗖𝗣𝗨 𝗖𝗢𝗥𝗘𝗦:* ${os.cpus().length}
-*┃📁 𝗠𝗘𝗠𝗢𝗥𝗬:* ${(os.totalmem() / 1024 / 1024 / 1024).toFixed(2)} 𝗚𝗕
+*┃⭕ 𝐎ꜱ:* ${os.type()} ${os.release()}
+*┃⚡ 𝐏ʟᴀᴛꜰᴏʀᴍ:* ${os.platform()}
+*┃🔰 𝐂ᴘᴜ 𝐂ᴏʀᴇꜱ:* ${os.cpus().length}
+*┃📁 𝐌ᴇᴍᴏʀʏ:* ${(os.totalmem() / 1024 / 1024 / 1024).toFixed(2)} 𝐆𝐁
 *╰━━━━━━━━━━━◆*
               `;
 
@@ -893,8 +892,8 @@ function setupCommandHandlers(socket, number) {
             await socket.sendMessage(sender, {
               image: imagePayload,
               caption: text,
-              footer: `* ${botName} 𝗦𝗬𝗦𝗧𝗘𝗠 𝗜𝗡𝗙𝗢 * `,
-              buttons: [{ buttonId: `${config.PREFIX} menu`, buttonText: { displayText: "📍 𝗠𝗘𝗡𝗨" }, type: 1 }],
+              footer: ` ${botName} 𝐒ʏꜱᴛᴇᴍ 𝐈ɴꜰᴏ `,
+              buttons: [{ buttonId: `${config.PREFIX} menu`, buttonText: { displayText: "📍ꜱʏꜱᴛᴇᴍ" }, type: 1 }],
               headerType: 4
             }, { quoted: metaQuote });
 
