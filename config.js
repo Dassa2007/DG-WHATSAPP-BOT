@@ -15,8 +15,8 @@ module.exports = {
     NEWSLETTER_MESSAGE_ID: '428',
     OTP_EXPIRY: 300000,
     NEWS_JSON_URL: '',
-    BOT_NAME: 'DG WHATSAPP BOT',
-    OWNER_NAME: 'DASUN GIMHANA',
+    BOT_NAME: '©️ ᴅɢ ᴡʜᴀᴛꜱᴀᴘᴘ ʙᴏᴛ',
+    OWNER_NAME: '𝐃ᴀꜱᴜɴ 𝐆ɪᴍʜᴀɴᴀ',
 
     OWNER_NUMBER: '94783188906',
 
